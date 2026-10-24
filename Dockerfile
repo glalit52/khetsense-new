@@ -26,9 +26,6 @@ USER node
 # Expose HTTP port
 EXPOSE 3000
 
-# Volume mount point for persistent data (subscriptions & price history)
-VOLUME ["/app/data"]
-
 # Health check using built-in Node 22 fetch
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
