@@ -10,7 +10,8 @@ const RESOURCE = "9ef84268-d588-465a-a308-a864a43d0070";
 // data.gov.in's documented public sample key is capped at 10 records per call.
 // Register free at https://data.gov.in for a personal key (1000+ records).
 const SAMPLE_KEY = "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b";
-const HISTORY_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../data/price-history.jsonl");
+const defaultDataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../data");
+const getHistoryFile = () => path.join(process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : defaultDataDir, "price-history.jsonl");
 
 export async function getMandiPrices({ state, district, commodity, limit = 100 } = {}) {
   const key = process.env.DATA_GOV_IN_API_KEY || SAMPLE_KEY;
@@ -31,7 +32,8 @@ export async function getMandiPrices({ state, district, commodity, limit = 100 }
 const seen = new Set();
 function recordHistory(records) {
   try {
-    fs.mkdirSync(path.dirname(HISTORY_FILE), { recursive: true });
+    const file = getHistoryFile();
+    fs.mkdirSync(path.dirname(file), { recursive: true });
     const lines = [];
     for (const r of records) {
       const id = `${r.date}|${r.market}|${r.commodity}|${r.variety}`;
@@ -39,13 +41,13 @@ function recordHistory(records) {
       seen.add(id);
       lines.push(JSON.stringify(r));
     }
-    if (lines.length) fs.appendFileSync(HISTORY_FILE, lines.join("\n") + "\n");
+    if (lines.length) fs.appendFileSync(file, lines.join("\n") + "\n");
   } catch { /* history is best-effort */ }
 }
 
 // Load prior history into the de-dup set at startup.
 try {
-  for (const line of fs.readFileSync(HISTORY_FILE, "utf8").split("\n")) {
+  for (const line of fs.readFileSync(getHistoryFile(), "utf8").split("\n")) {
     if (!line) continue;
     const r = JSON.parse(line);
     seen.add(`${r.date}|${r.market}|${r.commodity}|${r.variety}`);
@@ -55,7 +57,8 @@ try {
 // Daily average modal price for a commodity from the locally accumulated dataset.
 export function priceHistory(commodity, state) {
   let lines = [];
-  try { lines = fs.readFileSync(HISTORY_FILE, "utf8").split("\n").filter(Boolean); } catch { return []; }
+  try { lines = fs.readFileSync(getHistoryFile(), "utf8").split("\n").filter(Boolean); } catch { return []; }
+
   const byDate = new Map();
   for (const line of lines) {
     const r = JSON.parse(line);

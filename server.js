@@ -21,10 +21,11 @@ try {
 } catch { /* no .env */ }
 
 // Ensure data directory exists for persistent storage
-const dataDir = path.join(here, "data");
+const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(here, "data");
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
+
 
 const app = express();
 app.set("trust proxy", 1);

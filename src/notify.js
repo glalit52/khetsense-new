@@ -7,12 +7,14 @@ import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { buildSnapshot } from "./engine/snapshot.js";
 
-const FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../data/subscriptions.json");
+const defaultDataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../data");
+const getDataFile = () => path.join(process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : defaultDataDir, "subscriptions.json");
 const PUSH_SEVERITIES = new Set(["critical", "warning"]);
 let subs = load();
 
-function load() { try { return JSON.parse(fs.readFileSync(FILE, "utf8")); } catch { return {}; } }
-function save() { fs.mkdirSync(path.dirname(FILE), { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(subs, null, 2)); }
+function load() { try { return JSON.parse(fs.readFileSync(getDataFile(), "utf8")); } catch { return {}; } }
+function save() { const f = getDataFile(); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(subs, null, 2)); }
+
 
 export function channelsConfigured() {
   return {
