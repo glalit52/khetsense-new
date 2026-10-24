@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: khetisense
+    runtime: node
+    plan: starter
+    region: singapore # Closest to India for optimal latency
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /health
+    disk:
+      name: khetisense-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DATA_GOV_IN_API_KEY
+        sync: false
+      - key: NASA_FIRMS_MAP_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: ALERT_INTERVAL_MIN
+        value: 60

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KhetiSense — AI Farm Advisor</title>
+  <meta name="description" content="Live weather, disease & pest alerts, irrigation, mandi prices and an AI agronomist for Indian farmers.">
+  <meta name="theme-color" content="#14532d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
+      </div>
+      <div><strong>KhetiSense</strong><small data-i18n="tagline">AI farm advisor</small></div>
+    </div>
+    <div class="top-actions">
+      <button class="farm-chip" id="farmChip" aria-label="Farm settings">
+        <span class="dot"></span><span id="farmChipText" data-i18n="setFarm">Set your farm</span>
+      </button>
+      <select id="langSel" aria-label="Language">
+        <option value="hi">हिन्दी</option><option value="en">English</option><option value="pa">ਪੰਜਾਬੀ</option>
+        <option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="bn">বাংলা</option>
+        <option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option>
+        <option value="ml">മലയാളം</option><option value="or">ଓଡ଼ିଆ</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Your farm's live advisor</h1>
+      <p data-i18n="heroSub">Ask by voice in your language, scan a leaf, and get alerts before weather, pests or prices hit your crop.</p>
+      <form class="askbar" id="askForm">
+        <button type="button" class="icon-btn mic" id="micBtn" aria-label="Speak">
+          <svg viewBox="0 0 24 24" width="22" height="22"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <input id="askInput" autocomplete="off" data-i18n-ph="askPh" placeholder="Ask anything about your crop…">
+        <button type="button" class="icon-btn" id="camBtn" aria-label="Scan crop photo">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 8h3l2-3h6l2 3h3v11H4Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </button>
+        <button type="submit" class="send" aria-label="Send">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <div class="chips" id="suggestions"></div>
+    </section>
+
+    <div id="setupNotice" class="notice hidden"></div>
+
+    <div class="grid">
+      <section class="card span2" id="alertsCard">
+        <div class="card-h">
+          <h2 data-i18n="alerts">Alerts</h2>
+          <button class="btn small" id="subscribeBtn" data-i18n="enableAlerts">Turn on alerts</button>
+        </div>
+        <div id="alertsList" class="alerts"><div class="skeleton" style="height:120px"></div></div>
+      </section>
+
+      <section class="card" id="weatherCard">
+        <div class="card-h"><h2 data-i18n="weather">Weather</h2><span class="muted" id="wxPlace"></span></div>
+        <div id="wxNow" class="wx-now"><div class="skeleton" style="height:90px"></div></div>
+        <div class="days" id="wxDays"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2 data-i18n="forecast48">Next 48 hours</h2></div>
+        <div class="chart-wrap"><canvas id="hourChart" height="200"></canvas></div>
+      </section>
+
+      <section class="card span2" id="predCard">
+        <div class="card-h"><h2 data-i18n="predictions">Predictions</h2><span class="muted" id="stageTxt"></span></div>
+        <div class="pred-grid">
+          <div class="pred">
+            <h3 data-i18n="yieldRisk">Yield risk</h3>
+            <div class="gauge" id="riskGauge"></div>
+            <div class="factors" id="riskFactors"></div>
+          </div>
+          <div class="pred">
+            <h3 data-i18n="diseaseRisk">Disease & pest risk (72 h)</h3>
+            <div id="diseaseBars"></div>
+          </div>
+          <div class="pred">
+            <h3 data-i18n="irrigation">Irrigation</h3>
+            <div id="irrigation"></div>
+          </div>
+          <div class="pred">
+            <h3 data-i18n="spray">Spray windows</h3>
+            <div id="sprayList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span2 brief" id="briefCard">
+        <div class="card-h">
+          <h2><span class="spark">✦</span> <span data-i18n="aiBrief">AI farm brief</span></h2>
+          <button class="btn" id="briefBtn" data-i18n="genBrief">Generate today's brief</button>
+        </div>
+        <p class="muted" id="briefIntro" data-i18n="briefIntro">The AI agent reads every data source for your farm and predicts what will happen this week, with a day-by-day plan.</p>
+        <div id="briefOut"></div>
+      </section>
+
+      <section class="card span2" id="mandiCard">
+        <div class="card-h"><h2 data-i18n="mandi">Mandi prices</h2><span class="muted" id="mandiMeta"></span></div>
+        <div id="mandiSummary" class="mandi-sum"></div>
+        <div class="table-wrap"><table id="mandiTable"></table></div>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2 data-i18n="satellite">Satellite crop health</h2></div>
+        <div id="ndvi"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2 data-i18n="soilAir">Soil, air & flood</h2></div>
+        <div id="soilAir"></div>
+      </section>
+
+      <section class="card span2">
+        <div class="card-h"><h2 data-i18n="schemes">Schemes & helplines</h2></div>
+        <div id="schemes" class="schemes"></div>
+      </section>
+
+      <section class="card span2">
+        <div class="card-h"><h2 data-i18n="sources">Live data sources</h2><span class="muted" id="updated"></span></div>
+        <div id="sources" class="sources"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Chat drawer -->
+  <aside class="drawer" id="chat" aria-hidden="true">
+    <div class="drawer-h">
+      <strong data-i18n="assistant">KhetiSense assistant</strong>
+      <div>
+        <button class="icon-btn" id="speakToggle" title="Read answers aloud" aria-pressed="false">🔈</button>
+        <button class="icon-btn" id="newChat" title="New chat">＋</button>
+        <button class="icon-btn" id="closeChat" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <form class="askbar in-drawer" id="chatForm">
+      <button type="button" class="icon-btn mic" id="micBtn2" aria-label="Speak">🎤</button>
+      <input id="chatInput" autocomplete="off" data-i18n-ph="askPh" placeholder="Ask anything about your crop…">
+      <button type="submit" class="send" aria-label="Send">➤</button>
+    </form>
+  </aside>
+  <button class="fab" id="fab" aria-label="Open assistant">💬</button>
+
+  <!-- Farm setup -->
+  <dialog id="farmDlg">
+    <form method="dialog" class="dlg" id="farmForm">
+      <h2 data-i18n="yourFarm">Your farm</h2>
+      <div class="row">
+        <input id="placeSearch" data-i18n-ph="searchPh" placeholder="Search village / town / district">
+        <button type="button" class="btn ghost" id="gpsBtn" data-i18n="useGps">Use GPS</button>
+      </div>
+      <div id="placeResults" class="results"></div>
+      <div id="map"></div>
+      <p class="muted small" id="pickedPlace" data-i18n="tapMap">Tap the map to mark your field.</p>
+      <div class="row3">
+        <label><span data-i18n="crop">Crop</span><select id="cropSel"></select></label>
+        <label><span data-i18n="sowDate">Sowing date</span><input type="date" id="sowDate"></label>
+        <label><span data-i18n="area">Area (acres)</span><input type="number" id="area" min="0" step="0.1"></label>
+      </div>
+      <div class="dlg-actions">
+        <button value="cancel" class="btn ghost" data-i18n="cancel">Cancel</button>
+        <button value="ok" class="btn" id="saveFarm" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Crop scan -->
+  <dialog id="scanDlg">
+    <div class="dlg">
+      <h2 data-i18n="scanTitle">Crop disease scan</h2>
+      <p class="muted" data-i18n="scanHint">Photograph one affected leaf in daylight, close up, in focus.</p>
+      <label class="drop" id="drop">
+        <input type="file" accept="image/*" capture="environment" id="fileIn" hidden>
+        <img id="preview" alt="" hidden>
+        <span id="dropTxt" data-i18n="choosePhoto">📷 Take or choose a photo</span>
+      </label>
+      <input id="scanNote" data-i18n-ph="notePh" placeholder="Optional: what did you notice? (e.g. spreading since 3 days)">
+      <div id="scanOut"></div>
+      <div class="dlg-actions">
+        <button class="btn ghost" id="closeScan" data-i18n="close">Close</button>
+        <button class="btn" id="runScan" disabled data-i18n="diagnose">Diagnose</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="subDlg">
+    <form method="dialog" class="dlg" id="subForm">
+      <h2 data-i18n="alertSetup">Alert delivery</h2>
+      <p class="muted" data-i18n="alertSetupHint">Your farm is checked every hour. Critical and warning alerts appear here as notifications and are sent to any channel below.</p>
+      <label><span>📱 Phone (SMS / WhatsApp, with +91)</span><input id="subPhone" type="tel" placeholder="+91XXXXXXXXXX"></label>
+      <label class="check"><input type="checkbox" id="subWa"> WhatsApp</label>
+      <label><span>✈️ Telegram chat ID</span><input id="subTg" placeholder="e.g. 123456789"></label>
+      <p class="muted small" id="channelInfo"></p>
+      <div class="dlg-actions">
+        <button value="cancel" class="btn ghost" id="unsubBtn" data-i18n="turnOff">Turn off</button>
+        <button value="ok" class="btn" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

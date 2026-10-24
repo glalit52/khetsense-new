@@ -1,0 +1,40 @@
+{"state":"Rajasthan","district":"Chittorgarh","market":"Nimbahera APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":8220,"max":8600,"modal":8410}
+{"state":"Rajasthan","district":"Kota","market":"Kota APMC","commodity":"Mustard","variety":"Mustard","date":"21/10/2026","min":8300,"max":8300,"modal":8300}
+{"state":"Rajasthan","district":"Tonk","market":"Uniyara APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":8190,"max":8302,"modal":8246}
+{"state":"Rajasthan","district":"Ajmer","market":"Kekri APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":7650,"max":8750,"modal":8100}
+{"state":"Rajasthan","district":"Kota","market":"Itawa APMC","commodity":"Mustard","variety":"Mustard","date":"21/10/2026","min":7900,"max":8870,"modal":8385}
+{"state":"Rajasthan","district":"Baran","market":"Samraniyan APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":7800,"max":7800,"modal":7800}
+{"state":"Rajasthan","district":"Bundi","market":"Bundi APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":7901,"max":7901,"modal":7901}
+{"state":"Rajasthan","district":"Hanumangarh","market":"Bhadara APMC","commodity":"Mustard","variety":"Mustard","date":"21/10/2026","min":8201,"max":8201,"modal":8201}
+{"state":"Rajasthan","district":"Kota","market":"Ramganjmandi APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":6500,"max":8281,"modal":7801}
+{"state":"Rajasthan","district":"Ganganagar","market":"Gajsinghpur APMC","commodity":"Mustard","variety":"Other","date":"21/10/2026","min":7500,"max":8503,"modal":8258}
+{"state":"Tamil Nadu","district":"Ranipet","market":"Ammoor RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":1600,"max":5146,"modal":3373}
+{"state":"Tamil Nadu","district":"Virudhunagar","market":"Rajapalayam RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":1800,"max":2000,"modal":1900}
+{"state":"Tamil Nadu","district":"Madurai","market":"Thirumangalam RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":3500,"max":3600,"modal":3550}
+{"state":"Tamil Nadu","district":"Kannyiakumari","market":"Vadaseri RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":1900,"max":2400,"modal":2150}
+{"state":"Tamil Nadu","district":"Madurai","market":"Madurai RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":4000,"max":4600,"modal":4300}
+{"state":"Tamil Nadu","district":"Krishnagiri","market":"Krishnagiri RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":2500,"max":3000,"modal":2750}
+{"state":"Tamil Nadu","district":"Tirunelveli","market":"Ambasamudram RM","commodity":"Paddy(Common)","variety":"Ponni","date":"21/10/2026","min":1850,"max":1950,"modal":1900}
+{"state":"Tamil Nadu","district":"Villupuram","market":"Avalurpet RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":2615,"max":5079,"modal":3847}
+{"state":"Tamil Nadu","district":"Kallakurichi","market":"Sankarapuram RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":2821,"max":2995,"modal":2908}
+{"state":"Tamil Nadu","district":"Tirunelveli","market":"Thisayanvilai RM","commodity":"Paddy(Common)","variety":"Other","date":"21/10/2026","min":2000,"max":2200,"modal":2100}
+{"state":"Haryana","district":"Sirsa","market":"Ellanabad APMC","commodity":"Mustard","variety":"Mustard","date":"21/10/2026","min":7500,"max":8260,"modal":8130}
+{"state":"Maharashtra","district":"Chattrapati Sambhajinagar","market":"APMC Vaijpur ","commodity":"Wheat","variety":"Other","date":"21/10/2026","min":2800,"max":4000,"modal":2850}
+{"state":"Madhya Pradesh","district":"Mandsaur","market":"Sitamau APMC","commodity":"Wheat","variety":"Mill Quality","date":"21/10/2026","min":2603,"max":3091,"modal":3091}
+{"state":"Rajasthan","district":"Kota","market":"Kota APMC","commodity":"Wheat","variety":"Local","date":"21/10/2026","min":2800,"max":2800,"modal":2800}
+{"state":"Maharashtra","district":"Ahilyanagar","market":"Karjat(Rashin)","commodity":"Wheat","variety":"Other","date":"21/10/2026","min":2610,"max":2800,"modal":2700}
+{"state":"Gujarat","district":"Gandhinagar","market":"Kalol APMC","commodity":"Wheat","variety":"Other","date":"21/10/2026","min":2850,"max":2975,"modal":2900}
+{"state":"Maharashtra","district":"Akola","market":"APMC Akola ","commodity":"Wheat","variety":"Sharbati","date":"21/10/2026","min":3040,"max":3750,"modal":3450}
+{"state":"Maharashtra","district":"Dhule","market":"Dondaicha (Sindhkheda) ","commodity":"Wheat","variety":"Other","date":"21/10/2026","min":2600,"max":2600,"modal":2600}
+{"state":"Uttar Pradesh","district":"Etah","market":"Etah APMC","commodity":"Wheat","variety":"Wheat-Organic","date":"21/10/2026","min":2500,"max":2500,"modal":2500}
+{"state":"Maharashtra","district":"Nagpur","market":"APMC Nagpur ","commodity":"Wheat","variety":"Other","date":"21/10/2026","min":2610,"max":2800,"modal":2752}
+{"state":"Madhya Pradesh","district":"Sagar","market":"Khurai APMC","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":7701,"max":7701,"modal":7701}
+{"state":"Madhya Pradesh","district":"Rajgarh","market":"Biaora APMC","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":7000,"max":7100,"modal":7100}
+{"state":"Madhya Pradesh","district":"Sagar","market":"Rahatgarh APMC","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":8000,"max":8000,"modal":8000}
+{"state":"Rajasthan","district":"Jodhpur","market":"Osiyan Mathania APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":7500,"max":8000,"modal":7750}
+{"state":"Madhya Pradesh","district":"Ashoknagar","market":"Ashoknagar APMC","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":7505,"max":7505,"modal":7505}
+{"state":"West Bengal","district":"Bankura","market":"Bishnupur(Bankura) APMC","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":6200,"max":6800,"modal":6500}
+{"state":"Rajasthan","district":"Deeg","market":"Kumher APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":8780,"max":8780,"modal":8780}
+{"state":"Gujarat","district":"Banaskanth","market":"Deesa APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":8155,"max":8400,"modal":8350}
+{"state":"Rajasthan","district":"Jaipur","market":"Bassi APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":8600,"max":8600,"modal":8600}
+{"state":"Madhya Pradesh","district":"Mandla","market":"Krishi Upaj Mandi Samiti Bichhiya","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":7850,"max":7900,"modal":7900}

@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.DS_Store
+*.log
+npm-debug.log*
+.system_generated
+scratch
+DEPLOYMENT.md
+README.md
