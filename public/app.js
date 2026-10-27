@@ -6,6 +6,19 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
 
+// Auth helpers
+const getToken = () => localStorage.getItem('ks_token');
+async function authedApi(path, opts = {}) {
+  const token = getToken();
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    ...opts,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
 const SAMPLE_FARM = { lat: 29.6857, lon: 76.9905, place: "Karnal, Haryana", state: "Haryana", crop: "mustard", sowDate: "2026-10-05", sample: true };
 let profile = { lang: "hi", ...SAMPLE_FARM, ...store.get("ks.profile", {}) };
 let config = { ai: false, crops: [] };
@@ -434,7 +447,13 @@ function openFarm() {
     map.invalidateSize();
     marker ??= L.marker([profile.lat, profile.lon]).addTo(map);
     marker.setLatLng([profile.lat, profile.lon]);
-    map.setView([profile.lat, profile.lon], profile.sample ? 6 : 12);
+    if (profile.boundary && Array.isArray(profile.boundary) && profile.boundary.length >= 3) {
+      if (window._homePoly) map.removeLayer(window._homePoly);
+      window._homePoly = L.polygon(profile.boundary, { color: '#16a34a', weight: 2.5, fillColor: '#22c55e', fillOpacity: 0.3 }).addTo(map);
+      map.fitBounds(window._homePoly.getBounds(), { padding: [25, 25] });
+    } else {
+      map.setView([profile.lat, profile.lon], profile.sample ? 6 : 12);
+    }
   }, 50);
 }
 async function pick(lat, lon, label) {
@@ -463,6 +482,20 @@ $("#farmForm").onsubmit = (e) => {
   conversationId = null;
   updateFarmChip(); loadSnapshot();
   if (profile.subId) saveSubscription(store.get("ks.channels", {}));
+  if (getToken()) {
+    authedApi('/api/profile/farm', {
+      method: 'PUT',
+      body: JSON.stringify({
+        place: profile.place,
+        state: profile.state,
+        lat: profile.lat,
+        lon: profile.lon,
+        crop: profile.crop,
+        sowDate: profile.sowDate,
+        area: profile.area,
+      }),
+    }).catch(() => {});
+  }
 };
 
 // ---------------- Alert subscriptions + notifications ----------------
@@ -508,6 +541,89 @@ async function pollFeed() {
 $("#langSel").value = profile.lang;
 $("#langSel").onchange = (e) => { profile.lang = e.target.value; store.set("ks.profile", profile); applyI18n(); conversationId = null; snapshot && render(); loadSchemes(); };
 updateSpeak();
+
+// Auth nav init & session check
+(async () => {
+  const token = getToken();
+  const userNav = $("#userNav");
+  const guestNav = $("#guestNav");
+  const navProfile = $("#navProfile");
+
+  const appNav = $("#appNav");
+
+  if (token) {
+    try {
+      const { user } = await authedApi('/api/auth/me');
+      if (appNav) appNav.style.display = 'flex';
+      if (userNav) userNav.style.display = 'flex';
+      if (guestNav) guestNav.style.display = 'none';
+
+      // Set user badge (non-clickable status indicator)
+      const userAvatar = $("#userAvatar");
+      const userName = $("#userName");
+      const profileBadge = $("#profileBadge");
+      if (userAvatar) userAvatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
+      if (userName) userName.textContent = user.name ? user.name.split(' ')[0] : 'Farmer';
+      if (profileBadge) profileBadge.title = `${user.name || 'User'} (${user.email || ''})`;
+
+      // Store current user in localStorage for fast re-hydration
+      store.set('ks_user', user);
+
+      // Sync farm profile from DB if user has set farm
+      if (user.farm?.lat && user.farm?.lon) {
+        const dbFarm = user.farm;
+        const existing = store.get('ks.profile', {});
+        const merged = {
+          ...existing,
+          lat: dbFarm.lat, lon: dbFarm.lon,
+          place: dbFarm.place || existing.place,
+          state: dbFarm.state || existing.state,
+          crop: dbFarm.crop || existing.crop,
+          sowDate: dbFarm.sowDate || existing.sowDate,
+          area: dbFarm.area || existing.area,
+          soilType: dbFarm.soilType,
+          irrigationType: dbFarm.irrigationType,
+          boundary: dbFarm.boundary || existing.boundary || [],
+          sample: false,
+        };
+        profile = { lang: user.lang || profile.lang, ...merged };
+        store.set('ks.profile', profile);
+      }
+
+      // Logout handler
+      const logoutBtn = $("#mainLogoutBtn");
+      if (logoutBtn) logoutBtn.onclick = async () => {
+        if (!confirm('Are you sure you want to log out?')) return;
+        await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        localStorage.removeItem('ks_token');
+        localStorage.removeItem('ks_user');
+        window.location.href = '/login?msg=logged_out';
+      };
+    } catch {
+      // Token invalid or expired
+      localStorage.removeItem('ks_token');
+      localStorage.removeItem('ks_user');
+      if (appNav) appNav.style.display = 'none';
+      if (userNav) userNav.style.display = 'none';
+      if (guestNav) guestNav.style.display = 'flex';
+    }
+  } else {
+    if (appNav) appNav.style.display = 'none';
+    if (userNav) userNav.style.display = 'none';
+    if (guestNav) guestNav.style.display = 'flex';
+  }
+
+  // Intercept profile nav link if guest
+  if (navProfile) {
+    navProfile.onclick = (e) => {
+      if (!getToken()) {
+        e.preventDefault();
+        window.location.href = '/login?redirect=/profile&msg=profile';
+      }
+    };
+  }
+})();
+
 (async () => {
   config = await api("/api/config").catch(() => config);
   applyI18n();

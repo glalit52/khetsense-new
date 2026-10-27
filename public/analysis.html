@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KhetiSense — Farm Analysis</title>
+  <meta name="description" content="AI-powered farm analysis using your profile data — weather, disease, mandi prices, and polygon field mapping">
+  <meta name="theme-color" content="#14532d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="analysis.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="/" class="brand" title="KhetiSense Home">
+        <div class="logo">
+          <svg viewBox="0 0 32 32" width="22" height="22"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
+        </div>
+        <div class="brand-text"><strong>KhetiSense</strong><small>Farm Analysis</small></div>
+      </a>
+      <nav class="app-nav">
+        <a href="/" class="app-nav-link">
+          <span class="nav-icon">🌾</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="/analysis" class="app-nav-link active">
+          <span class="nav-icon">📊</span>
+          <span>Farm Analysis</span>
+        </a>
+        <a href="/profile" class="app-nav-link">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="top-actions">
+      <div class="user-nav">
+        <div class="user-badge" id="headerUserBadge" title="Farmer">
+          <span class="avatar-circle" id="headerAvatar">U</span>
+          <span class="user-display-name" id="headerUserName">Farmer</span>
+        </div>
+        <button class="logout-btn-header" id="logoutBtn" title="Logout">
+          <span class="logout-icon">🚪</span>
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="analysis-main">
+
+    <!-- Farm Profile Summary Banner -->
+    <div class="farm-banner" id="farmBanner">
+      <div class="farm-banner-info">
+        <div class="farm-banner-icon">🌾</div>
+        <div>
+          <h3 id="farmBannerTitle">Your Farm</h3>
+          <p id="farmBannerSub" class="muted">Loading farm details…</p>
+        </div>
+      </div>
+      <div class="farm-banner-stats" id="farmBannerStats"></div>
+      <div class="farm-banner-actions">
+        <button class="action-btn-primary" id="bannerDrawBtn">📍 Draw Field Polygon</button>
+        <button class="action-btn-secondary" id="bannerSettingsBtn">⚙️ Farm Settings</button>
+      </div>
+    </div>
+
+    <!-- 5 Analysis Tabs -->
+    <div class="tabs">
+      <button class="tab active" id="tab-snapshot" onclick="switchTab('snapshot')">📊 Live Snapshot</button>
+      <button class="tab" id="tab-field" onclick="switchTab('field')">🗺️ Field & Polygon</button>
+      <button class="tab" id="tab-mandi" onclick="switchTab('mandi')">💰 Mandi Prices</button>
+      <button class="tab" id="tab-history" onclick="switchTab('history')">📋 Analysis History</button>
+      <button class="tab" id="tab-settings" onclick="switchTab('settings')">⚙️ Farm Settings</button>
+    </div>
+
+    <!-- 1. SNAPSHOT TAB -->
+    <div class="tab-content active" id="content-snapshot">
+      <div class="run-bar">
+        <div>
+          <h3>Full Farm Analysis</h3>
+          <p class="muted">Uses your polygon field location, crop, soil, and irrigation for live AI predictions</p>
+        </div>
+        <button class="run-btn" id="runAnalysisBtn">
+          <span class="btn-ico">▶</span> Run Analysis
+        </button>
+      </div>
+
+      <div id="analysisOut" class="analysis-out hidden">
+        <!-- Dynamic content: weather, yield risk, disease bars, irrigation, NDVI, spray windows -->
+      </div>
+
+      <div id="analysisEmpty" class="empty-state">
+        <div class="empty-icon">🌱</div>
+        <h3>No analysis run yet</h3>
+        <p>Draw your field polygon or click "Run Analysis" to get a live snapshot of your farm — weather risks, disease predictions, irrigation needs, and mandi rates.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button class="action-btn-primary" onclick="switchTab('field')">📍 Draw Field Polygon on Map</button>
+        </div>
+        <div class="empty-hint" id="profileHint"></div>
+      </div>
+    </div>
+
+    <!-- 2. FIELD & POLYGON TAB -->
+    <div class="tab-content" id="content-field">
+      <div class="field-card">
+        <div class="field-toolbar">
+          <div class="field-search-wrap">
+            <span class="search-ico">🔍</span>
+            <input type="text" id="mapSearchInput" placeholder="Search village, tehsil, or district…" autocomplete="off">
+            <div id="mapSearchResults" class="map-search-results hidden"></div>
+          </div>
+          <div class="map-btn-group">
+            <button type="button" class="tool-btn" id="mapGpsBtn" title="Locate via GPS">📍 GPS</button>
+            <button type="button" class="tool-btn" id="mapTileToggleBtn" title="Toggle Satellite Imagery">🛰️ Satellite</button>
+            <button type="button" class="tool-btn active-tool" id="mapDrawToggleBtn" title="Toggle Polygon Drawing">✏️ Draw Polygon</button>
+            <button type="button" class="tool-btn highlight-btn" id="mapClosePolyBtn" title="Click start point or tap here to close boundary" disabled>🎯 Close Polygon</button>
+            <button type="button" class="tool-btn" id="mapUndoBtn" title="Undo last point" disabled>↩️ Undo</button>
+            <button type="button" class="tool-btn danger" id="mapClearBtn" title="Clear boundary">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Live HUD Bar -->
+        <div class="field-hud">
+          <div class="hud-item">
+            <span class="hud-lbl">Location</span>
+            <span class="hud-val" id="hudLocation">📍 Not marked</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-lbl">Calculated Area</span>
+            <span class="hud-val highlight" id="hudArea">0.00 Acres</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-lbl">Polygon Corners</span>
+            <span class="hud-val" id="hudPoints">0 points</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-lbl">Drawing Status</span>
+            <span class="hud-val status" id="hudStatus">Click on map to place boundary points</span>
+          </div>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div id="fieldMap" class="field-map"></div>
+
+        <!-- Field Details Form -->
+        <form id="fieldForm" class="field-form">
+          <div class="field-form-grid">
+            <div class="form-group">
+              <label for="fieldNameInput">Farm / Field Name</label>
+              <input type="text" id="fieldNameInput" placeholder="e.g. My North Field">
+            </div>
+            <div class="form-group">
+              <label for="fieldCropSelect">Crop</label>
+              <select id="fieldCropSelect"></select>
+            </div>
+            <div class="form-group">
+              <label for="fieldSowDateInput">Sowing Date</label>
+              <input type="date" id="fieldSowDateInput">
+            </div>
+            <div class="form-group">
+              <label for="fieldAreaInput">Area (Acres)</label>
+              <input type="number" id="fieldAreaInput" step="0.01" min="0" placeholder="Auto-calculated">
+            </div>
+            <div class="form-group">
+              <label for="fieldSoilSelect">Soil Type</label>
+              <select id="fieldSoilSelect">
+                <option value="">Select soil…</option>
+                <option value="loamy">Loamy (दोमट)</option>
+                <option value="alluvial">Alluvial (जलोढ़)</option>
+                <option value="black">Black / Regur (काली)</option>
+                <option value="clay">Clay (चिकनी)</option>
+                <option value="sandy">Sandy (बलुई)</option>
+                <option value="red">Red (लाल)</option>
+                <option value="silt">Silt (गाद)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fieldIrrigationSelect">Irrigation Method</label>
+              <select id="fieldIrrigationSelect">
+                <option value="">Select irrigation…</option>
+                <option value="canal">Canal (नहर)</option>
+                <option value="borewell">Borewell / Tubewell</option>
+                <option value="drip">Drip Irrigation (ड्रिप)</option>
+                <option value="sprinkler">Sprinkler (फव्वारा)</option>
+                <option value="rainfed">Rainfed (बारिश पर निर्भर)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-form-actions">
+            <button type="submit" class="save-field-btn" id="saveFieldBtn">
+              <span>💾 Save Field & Run Full Analysis →</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. MANDI TAB -->
+    <div class="tab-content" id="content-mandi">
+      <div class="mandi-controls">
+        <div class="form-group">
+          <label>Crop</label>
+          <select id="mandiCrop">
+            <option value="">Loading…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="mandiState" placeholder="e.g. Haryana">
+        </div>
+        <button class="run-btn small" id="fetchMandiBtn">Fetch Prices</button>
+      </div>
+      <div id="mandiOut" class="mandi-out"></div>
+    </div>
+
+    <!-- 4. HISTORY TAB -->
+    <div class="tab-content" id="content-history">
+      <div class="history-header">
+        <h3>Analysis History</h3>
+        <button class="clear-btn" id="clearHistoryBtn">Clear All</button>
+      </div>
+      <div id="historyList" class="history-list">
+        <div class="loading-state">⏳ Loading history…</div>
+      </div>
+    </div>
+
+    <!-- 5. FARM SETTINGS TAB -->
+    <div class="tab-content" id="content-settings">
+      <div class="settings-card">
+        <div class="settings-header">
+          <h3>Farm & Alert Preferences</h3>
+          <p class="muted">Quickly tune your farm parameters for accurate AI agronomist calculations.</p>
+        </div>
+        <form id="analysisSettingsForm" class="settings-form">
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Farm Name</label>
+              <input type="text" id="setFarmName" placeholder="e.g. My Krishi Farm">
+            </div>
+            <div class="form-group">
+              <label>Selected Crop</label>
+              <select id="setFarmCrop"></select>
+            </div>
+            <div class="form-group">
+              <label>Sowing Date</label>
+              <input type="date" id="setFarmSowDate">
+            </div>
+            <div class="form-group">
+              <label>Area (Acres)</label>
+              <input type="number" id="setFarmArea" step="0.1" min="0" placeholder="Acres">
+            </div>
+            <div class="form-group">
+              <label>Soil Type</label>
+              <select id="setFarmSoil">
+                <option value="">Select soil…</option>
+                <option value="loamy">Loamy (दोमट)</option>
+                <option value="alluvial">Alluvial (जलोढ़)</option>
+                <option value="black">Black (काली)</option>
+                <option value="clay">Clay (चिकनी)</option>
+                <option value="sandy">Sandy (बलुई)</option>
+                <option value="red">Red (लाल)</option>
+                <option value="silt">Silt</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Irrigation Type</label>
+              <select id="setFarmIrrigation">
+                <option value="">Select irrigation…</option>
+                <option value="canal">Canal (नहर)</option>
+                <option value="borewell">Borewell</option>
+                <option value="drip">Drip</option>
+                <option value="sprinkler">Sprinkler</option>
+                <option value="rainfed">Rainfed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Alert Phone Number (SMS / WhatsApp)</label>
+              <input type="tel" id="setAlertPhone" placeholder="+91XXXXXXXXXX">
+            </div>
+            <div class="form-group">
+              <label>Telegram Chat ID</label>
+              <input type="text" id="setTelegramId" placeholder="e.g. 123456789">
+            </div>
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="run-btn">💾 Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="analysis.js" type="module"></script>
+</body>
+</html>

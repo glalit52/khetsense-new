@@ -38,3 +38,25 @@
 {"state":"Gujarat","district":"Banaskanth","market":"Deesa APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":8155,"max":8400,"modal":8350}
 {"state":"Rajasthan","district":"Jaipur","market":"Bassi APMC","commodity":"Mustard","variety":"Other","date":"22/10/2026","min":8600,"max":8600,"modal":8600}
 {"state":"Madhya Pradesh","district":"Mandla","market":"Krishi Upaj Mandi Samiti Bichhiya","commodity":"Mustard","variety":"Mustard","date":"22/10/2026","min":7850,"max":7900,"modal":7900}
+{"state":"Punjab","district":"Fazilka","market":"Fazilka APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":4800,"max":4800,"modal":4800}
+{"state":"Punjab","district":"Gurdaspur","market":"Quadian APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3200,"max":3500,"modal":3400}
+{"state":"Punjab","district":"Sangrur","market":"Ahmedgarh APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":4000,"max":4200,"modal":4200}
+{"state":"Punjab","district":"Tarntaran","market":"Tarantaran APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":2800,"max":2800,"modal":2800}
+{"state":"Punjab","district":"Tarntaran","market":"Patti APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":0.01,"max":0.01,"modal":0.01}
+{"state":"Punjab","district":"Fazilka","market":"Jalalabad APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":4200,"max":4500,"modal":4300}
+{"state":"Punjab","district":"Hoshiarpur","market":"Tanda Urmur APMC","commodity":"Onion","variety":"Nasik","date":"27/10/2026","min":5000,"max":6000,"modal":5500}
+{"state":"Punjab","district":"Ludhiana","market":"Khanna APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":4000,"max":4000,"modal":4000}
+{"state":"Punjab","district":"Muktsar","market":"Malout APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":4000,"max":4000,"modal":4000}
+{"state":"Punjab","district":"Ferozpur","market":"Zira APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":4800,"max":4800,"modal":4800}
+{"state":"Punjab","district":"Bhatinda","market":"Rampuraphul(Nabha Mandi) APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3000,"max":4000,"modal":3500}
+{"state":"Punjab","district":"Bhatinda","market":"Bhagta Bhai Ka APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":4000,"max":4000,"modal":4000}
+{"state":"Punjab","district":"Mohali","market":"Dera Bassi APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":3600,"max":3600,"modal":3600}
+{"state":"Punjab","district":"Gurdaspur","market":"Gurdaspur APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3850,"max":3850,"modal":3850}
+{"state":"Punjab","district":"Fatehgarh","market":"Sirhind APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3500,"max":4500,"modal":4000}
+{"state":"Punjab","district":"Amritsar","market":"Rayya APMC","commodity":"Onion","variety":"Red","date":"27/10/2026","min":4107,"max":4107,"modal":4107}
+{"state":"Punjab","district":"Hoshiarpur","market":"GarhShankar (Kotfatuhi) APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3500,"max":3500,"modal":3500}
+{"state":"Punjab","district":"Bhatinda","market":"Bhucho APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":4000,"max":4000,"modal":4000}
+{"state":"Punjab","district":"Ropar (Rupnagar)","market":"Chamkaur Sahib APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":5000,"max":5000,"modal":5000}
+{"state":"Punjab","district":"Ludhiana","market":"Sahnewal APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":4800,"max":4800,"modal":4800}
+{"state":"Punjab","district":"Hoshiarpur","market":"Dasuya APMC","commodity":"Onion","variety":"Onion","date":"27/10/2026","min":5000,"max":5000,"modal":5000}
+{"state":"Punjab","district":"Ludhiana","market":"Doraha APMC","commodity":"Onion","variety":"Other","date":"27/10/2026","min":3600,"max":4000,"modal":3900}

@@ -214,3 +214,96 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px); opacity: 0; background: var(--ink); color: var(--bg);
   padding: 10px 16px; border-radius: 10px; font-size: 14px; transition: .25s; z-index: 60; pointer-events: none; max-width: calc(100vw - 32px); }
 .toast.show { opacity: 1; transform: translateX(-50%); }
+
+/* ===== Topbar & Navigation ===== */
+.topbar-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; text-decoration: none; color: inherit; }
+.brand-text strong { display: block; font-size: 19px; letter-spacing: -.01em; color: var(--ink); }
+.brand-text small { display: block; color: var(--ink-2); font-size: 12px; margin-top: -2px; }
+
+.app-nav { display: flex; align-items: center; gap: 4px; }
+.app-nav-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 10px; text-decoration: none;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.app-nav-link:hover { color: var(--ink); background: var(--surface-2); }
+.app-nav-link.active {
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  font-weight: 600;
+}
+
+/* User Account & Badge */
+.user-nav { display: flex; align-items: center; gap: 8px; }
+.user-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 5px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line);
+  text-decoration: none; color: var(--ink); font-size: 13.5px; font-weight: 600;
+  transition: all 0.2s; max-width: 170px;
+}
+.user-badge:hover { border-color: var(--brand); background: var(--surface-2); }
+.avatar-circle {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), #15803d);
+  color: #fff; font-weight: 700; font-size: 12px;
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.user-display-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.logout-btn-header {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 11px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--crit); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.logout-btn-header:hover {
+  background: var(--crit-bg);
+  border-color: color-mix(in srgb, var(--crit) 30%, transparent);
+}
+
+/* Guest Navigation */
+.guest-nav { display: flex; align-items: center; gap: 8px; }
+.auth-link-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 6px 13px; border-radius: 10px; text-decoration: none;
+  font-size: 13.5px; font-weight: 600; transition: all 0.2s; white-space: nowrap;
+}
+.signin-btn { color: var(--ink); border: 1px solid var(--line); background: var(--surface); }
+.signin-btn:hover { border-color: var(--brand); background: var(--surface-2); }
+.signup-btn {
+  background: linear-gradient(135deg, var(--brand), #15803d);
+  color: #fff; border: 1px solid transparent;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--brand) 25%, transparent);
+}
+.signup-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+
+/* Guest prompt banner */
+.guest-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: 14px; padding: 10px 16px; margin-bottom: 16px; font-size: 14px;
+}
+.guest-banner-actions { display: flex; gap: 8px; flex: none; }
+.guest-banner-btn {
+  font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 8px;
+  text-decoration: none; transition: 0.2s;
+}
+
+@media (max-width: 860px) {
+  .app-nav-link span:not(.nav-icon) { display: none; }
+  .app-nav-link { padding: 6px 8px; }
+  .user-display-name { display: none; }
+  .logout-text { display: none; }
+}
+@media (max-width: 620px) {
+  .topbar { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
+  .topbar-left { gap: 10px; }
+  .farm-chip { max-width: 32vw; }
+  .brand-text small { display: none; }
+  .guest-banner { flex-direction: column; align-items: flex-start; }
+}

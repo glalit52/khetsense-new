@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KhetiSense — Profile & Settings</title>
+  <meta name="description" content="Manage your KhetiSense profile, farm details, and alert settings">
+  <meta name="theme-color" content="#14532d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="/" class="brand" title="KhetiSense Home">
+        <div class="logo">
+          <svg viewBox="0 0 32 32" width="22" height="22"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
+        </div>
+        <div class="brand-text"><strong>KhetiSense</strong><small>Settings & Profile</small></div>
+      </a>
+      <nav class="app-nav">
+        <a href="/" class="app-nav-link">
+          <span class="nav-icon">🌾</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="/analysis" class="app-nav-link">
+          <span class="nav-icon">📊</span>
+          <span>Farm Analysis</span>
+        </a>
+        <a href="/profile" class="app-nav-link active">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="top-actions">
+      <div class="user-nav">
+        <div class="user-badge" id="headerUserBadge">
+          <span class="avatar-circle" id="headerAvatar">U</span>
+          <span class="user-display-name" id="headerUserName">Farmer</span>
+        </div>
+        <button class="logout-btn-header" id="logoutBtn" title="Logout">
+          <span class="logout-icon">🚪</span>
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="profile-main">
+    <!-- Sidebar nav -->
+    <nav class="sidebar">
+      <button class="side-item active" onclick="showSection('account')" id="nav-account">
+        <span>👤</span> Account
+      </button>
+      <button class="side-item" onclick="showSection('farm')" id="nav-farm">
+        <span>🌾</span> Farm Details
+      </button>
+      <button class="side-item" onclick="showSection('alerts')" id="nav-alerts">
+        <span>🔔</span> Alert Channels
+      </button>
+      <button class="side-item" onclick="showSection('security')" id="nav-security">
+        <span>🔒</span> Security
+      </button>
+    </nav>
+
+    <div class="sections">
+
+      <!-- ACCOUNT Section -->
+      <section class="section active" id="section-account">
+        <div class="section-header">
+          <h2>Account Information</h2>
+          <p class="section-desc">Your personal details and preferences</p>
+        </div>
+
+        <div class="profile-avatar-row">
+          <div class="avatar" id="avatarDisplay">R</div>
+          <div>
+            <p class="avatar-name" id="avatarName">Loading…</p>
+            <p class="avatar-email muted" id="avatarEmail"></p>
+          </div>
+        </div>
+
+        <form class="settings-form" id="accountForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="accName" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" id="accPhone" placeholder="+91XXXXXXXXXX">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="accEmail" disabled class="disabled-input">
+              <small class="hint">Email cannot be changed</small>
+            </div>
+            <div class="form-group">
+              <label>Preferred Language</label>
+              <select id="accLang">
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
+                <option value="mr">मराठी</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="ml">മലയാളം</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- FARM Section -->
+      <section class="section" id="section-farm">
+        <div class="section-header">
+          <h2>Farm Details</h2>
+          <p class="section-desc">Your farm information used in all weather, crop, and analysis features</p>
+        </div>
+
+        <form class="settings-form" id="farmForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Farm Name</label>
+              <input type="text" id="farmName" placeholder="e.g. Ramesh's Farm">
+            </div>
+            <div class="form-group">
+              <label>Area (acres)</label>
+              <input type="number" id="farmArea" min="0" step="0.1" placeholder="e.g. 5.5">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Farm Location</label>
+            <div class="location-row">
+              <input type="text" id="farmPlace" placeholder="Village / Town / District" class="flex1" readonly>
+              <button type="button" class="icon-action-btn" id="gpsBtn2" title="Use GPS">📍 GPS</button>
+            </div>
+            <div class="latlon-row">
+              <input type="number" id="farmLat" step="0.0001" placeholder="Latitude" class="latlon-in">
+              <input type="number" id="farmLon" step="0.0001" placeholder="Longitude" class="latlon-in">
+            </div>
+            <small class="hint">Enter coordinates or use GPS. You can also update this from the main dashboard map.</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Primary Crop</label>
+              <select id="farmCrop">
+                <option value="">Loading crops…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sowing Date</label>
+              <input type="date" id="farmSowDate">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Soil Type</label>
+              <select id="farmSoilType">
+                <option value="">Select soil type</option>
+                <option value="alluvial">Alluvial (जलोढ़)</option>
+                <option value="black">Black Cotton (काली)</option>
+                <option value="red">Red (लाल)</option>
+                <option value="loamy">Loamy (दोमट)</option>
+                <option value="sandy">Sandy (बलुई)</option>
+                <option value="clay">Clay (चिकनी)</option>
+                <option value="silt">Silt (गाद)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Irrigation Type</label>
+              <select id="farmIrrigationType">
+                <option value="">Select irrigation</option>
+                <option value="rainfed">Rainfed (वर्षाधारित)</option>
+                <option value="canal">Canal (नहर)</option>
+                <option value="borewell">Borewell (ट्यूबवेल)</option>
+                <option value="drip">Drip (टपक)</option>
+                <option value="sprinkler">Sprinkler (फव्वारा)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Farming Method</label>
+            <select id="farmFarmingType">
+              <option value="">Select method</option>
+              <option value="conventional">Conventional (परंपरागत)</option>
+              <option value="organic">Organic (जैविक)</option>
+              <option value="integrated">Integrated Pest Management</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Notes about your farm</label>
+            <textarea id="farmNotes" placeholder="Any special conditions, challenges, or details about your farm…" rows="3"></textarea>
+          </div>
+
+          <div class="farm-info-banner" id="farmCoordsBanner">
+            <span>📍</span>
+            <span id="farmCoordsText">No location set</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Save Farm Details</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ALERTS Section -->
+      <section class="section" id="section-alerts">
+        <div class="section-header">
+          <h2>Alert Channels</h2>
+          <p class="section-desc">Where to send critical farm alerts (weather, disease, pest)</p>
+        </div>
+
+        <form class="settings-form" id="alertsForm">
+          <div class="alert-channel-card">
+            <div class="channel-icon">📱</div>
+            <div class="channel-info">
+              <h4>SMS Alerts</h4>
+              <p class="muted">Get critical alerts via SMS</p>
+            </div>
+            <input type="tel" id="alertPhone" placeholder="+91XXXXXXXXXX" class="channel-input">
+          </div>
+
+          <div class="alert-channel-card">
+            <div class="channel-icon">💬</div>
+            <div class="channel-info">
+              <h4>WhatsApp</h4>
+              <p class="muted">Send alerts to your WhatsApp</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="alertWhatsapp">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="alert-channel-card">
+            <div class="channel-icon">✈️</div>
+            <div class="channel-info">
+              <h4>Telegram</h4>
+              <p class="muted">Send alerts to your Telegram chat</p>
+            </div>
+            <input type="text" id="alertTelegram" placeholder="Chat ID e.g. 123456789" class="channel-input">
+          </div>
+
+          <div class="notice-box">
+            ℹ️ Server channel status: <span id="channelStatus">Loading…</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Save Alert Channels</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- SECURITY Section -->
+      <section class="section" id="section-security">
+        <div class="section-header">
+          <h2>Security</h2>
+          <p class="section-desc">Update your password</p>
+        </div>
+
+        <form class="settings-form" id="passwordForm">
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" id="pwdCurrent" placeholder="Enter current password" required>
+          </div>
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="pwdNew" placeholder="At least 6 characters" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" id="pwdConfirm" placeholder="Repeat new password" required>
+          </div>
+          <div id="pwdError" class="auth-error hidden"></div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Change Password</button>
+          </div>
+        </form>
+
+        <div class="danger-zone">
+          <h4>Session</h4>
+          <button class="danger-btn" id="logoutAllBtn">Sign out</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="profile.js" type="module"></script>
+</body>
+</html>

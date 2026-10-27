@@ -13,12 +13,29 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
-      </div>
-      <div><strong>KhetiSense</strong><small data-i18n="tagline">AI farm advisor</small></div>
+    <div class="topbar-left">
+      <a href="/" class="brand" title="KhetiSense Home">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
+        </div>
+        <div class="brand-text"><strong>KhetiSense</strong><small data-i18n="tagline">AI farm advisor</small></div>
+      </a>
+      <nav class="app-nav" id="appNav" style="display:none">
+        <a href="/" class="app-nav-link active">
+          <span class="nav-icon">🌾</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="/analysis" class="app-nav-link" id="navAnalysis">
+          <span class="nav-icon">📊</span>
+          <span>Farm Analysis</span>
+        </a>
+        <a href="/profile" class="app-nav-link" id="navProfile">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
     </div>
+
     <div class="top-actions">
       <button class="farm-chip" id="farmChip" aria-label="Farm settings">
         <span class="dot"></span><span id="farmChipText" data-i18n="setFarm">Set your farm</span>
@@ -29,6 +46,24 @@
         <option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option>
         <option value="ml">മലയാളം</option><option value="or">ଓଡ଼ିଆ</option>
       </select>
+
+      <!-- Logged-in State -->
+      <div class="user-nav" id="userNav" style="display:none">
+        <div class="user-badge" id="profileBadge" title="Farmer">
+          <span class="avatar-circle" id="userAvatar">U</span>
+          <span class="user-display-name" id="userName">User</span>
+        </div>
+        <button class="logout-btn-header" id="mainLogoutBtn" title="Logout">
+          <span class="logout-icon">🚪</span>
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+
+      <!-- Logged-out / Guest State -->
+      <div class="guest-nav" id="guestNav" style="display:none">
+        <a href="/login" class="auth-link-btn signin-btn">Sign In</a>
+        <a href="/login?tab=signup" class="auth-link-btn signup-btn">Sign Up</a>
+      </div>
     </div>
   </header>
 

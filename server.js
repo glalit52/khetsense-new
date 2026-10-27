@@ -2,6 +2,8 @@ import express from "express";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import cookieParser from "cookie-parser";
+import mongoose from "mongoose";
 import { buildSnapshot } from "./src/engine/snapshot.js";
 import { searchPlace, reverseGeocode } from "./src/services/sources.js";
 import {
@@ -26,6 +28,9 @@ import {
   channelsConfigured,
 } from "./src/notify.js";
 import { parseLatLon } from "./src/util.js";
+import authRouter from "./src/routes/auth.js";
+import profileRouter from "./src/routes/profile.js";
+import { authenticate, optionalAuth } from "./src/middleware/auth.js";
 
 // Minimal .env loader (no dependency).
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -49,6 +54,22 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// Connect to MongoDB
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  process.env.MONGODB_URI ||
+  "mongodb://localhost:27017/khetisense";
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("[mongo] Connected to MongoDB"))
+  .catch((e) =>
+    console.warn(
+      "[mongo] MongoDB connection failed:",
+      e.message,
+      "— auth features will be unavailable.",
+    ),
+  );
+
 const app = express();
 app.set("trust proxy", 1);
 
@@ -61,6 +82,7 @@ app.use((_req, res, next) => {
 });
 
 app.use(express.json({ limit: "12mb" }));
+app.use(cookieParser());
 app.use(express.static(path.join(here, "public")));
 
 const wrap = (fn) => async (req, res) => {
@@ -94,6 +116,10 @@ function parseImage(img) {
   return { mediaType: img.mediaType, data: img.data };
 }
 
+// ------------ Auth & Profile routes ------------
+app.use("/api/auth", authRouter);
+app.use("/api/profile", profileRouter);
+
 // Health check endpoint for uptime monitors, containers, and load balancers
 const healthHandler = (_req, res) => {
   res.json({
@@ -102,6 +128,7 @@ const healthHandler = (_req, res) => {
     timestamp: new Date().toISOString(),
     ai: aiEnabled(),
     channels: channelsConfigured(),
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 };
 app.get("/health", healthHandler);
@@ -132,6 +159,7 @@ app.get(
 
 app.get(
   "/api/snapshot",
+  optionalAuth,
   wrap((req) => {
     const { lat, lon } = parseLatLon(req.query);
     const crop = CROPS[req.query.crop] ? req.query.crop : "wheat";
@@ -237,6 +265,25 @@ app.get(
   wrap((req) => feed(req.params.id, req.query.since) ?? []),
 );
 
+// --- Web Page Routes ---
+app.get("/login", (_req, res) =>
+  res.sendFile(path.join(here, "public", "login.html")),
+);
+app.get("/signup", (_req, res) =>
+  res.sendFile(path.join(here, "public", "login.html")),
+);
+app.get("/profile", (_req, res) =>
+  res.sendFile(path.join(here, "public", "profile.html")),
+);
+app.get("/analysis", (_req, res) =>
+  res.sendFile(path.join(here, "public", "analysis.html")),
+);
+
+// --- SPA fallback — serve index.html for unknown routes ---
+app.get(/^\/(?!api|health).*/, (req, res) => {
+  res.sendFile(path.join(here, "public", "index.html"));
+});
+
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "0.0.0.0";
 
@@ -251,6 +298,7 @@ const server = app.listen(PORT, HOST, () => {
 const shutdown = (signal) => {
   console.log(`\n[server] Received ${signal}. Shutting down gracefully...`);
   stopWatcher();
+  mongoose.connection.close();
   server.close(() => {
     console.log("[server] HTTP server closed. Clean exit.");
     process.exit(0);

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KhetiSense — Login</title>
+  <meta name="description" content="Login to KhetiSense AI Farm Advisor">
+  <meta name="theme-color" content="#14532d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <div class="auth-bg">
+    <div class="auth-glow"></div>
+    <div class="auth-container">
+      <div class="auth-top-bar">
+        <a href="/" class="auth-back-btn">
+          <span>←</span> Back to Dashboard
+        </a>
+      </div>
+
+      <div class="auth-brand">
+        <a href="/" class="auth-logo" title="KhetiSense Home">
+          <svg viewBox="0 0 32 32" width="36" height="36"><path d="M16 29V14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 15c0-6 4-10 11-10 0 7-4 11-11 10Z" fill="currentColor"/><path d="M16 20c0-5-3.5-8-9.5-8 0 6 3.5 9 9.5 8Z" fill="currentColor" opacity=".7"/></svg>
+        </a>
+        <div>
+          <h1 class="auth-title">KhetiSense</h1>
+          <p class="auth-sub">AI Farm Advisor</p>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div id="authNotice" class="auth-notice hidden"></div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+          <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">📧</span>
+              <input type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="loginPassword" placeholder="Your password" required autocomplete="current-password">
+              <button type="button" class="eye-btn" onclick="togglePwd('loginPassword', this)">👁️</button>
+            </div>
+          </div>
+          <div id="loginError" class="auth-error hidden"></div>
+          <button type="submit" class="auth-btn" id="loginBtn">
+            <span class="btn-text">Login →</span>
+            <span class="btn-loader hidden">⏳</span>
+          </button>
+          <p class="auth-switch">Don't have an account? <a href="#" onclick="switchTab('signup')">Sign up free</a></p>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form hidden">
+          <div class="form-group">
+            <label for="signupName">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="signupName" placeholder="Ramesh Kumar" required autocomplete="name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupEmail">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">📧</span>
+              <input type="email" id="signupEmail" placeholder="you@example.com" required autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupPhone">Phone (optional)</label>
+            <div class="input-wrap">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="signupPhone" placeholder="+91XXXXXXXXXX" autocomplete="tel">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="signupPassword" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+              <button type="button" class="eye-btn" onclick="togglePwd('signupPassword', this)">👁️</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupLang">Preferred Language</label>
+            <div class="input-wrap">
+              <span class="input-icon">🌐</span>
+              <select id="signupLang">
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
+                <option value="mr">मराठी</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+              </select>
+            </div>
+          </div>
+          <div id="signupError" class="auth-error hidden"></div>
+          <button type="submit" class="auth-btn" id="signupBtn">
+            <span class="btn-text">Create Account →</span>
+            <span class="btn-loader hidden">⏳</span>
+          </button>
+          <p class="auth-switch">Already have an account? <a href="#" onclick="switchTab('login')">Login</a></p>
+        </form>
+      </div>
+
+      <div class="auth-features">
+        <div class="feature-chip">🌾 Crop Disease Scan</div>
+        <div class="feature-chip">🌤️ Live Weather</div>
+        <div class="feature-chip">💰 Mandi Prices</div>
+        <div class="feature-chip">🤖 AI Advisor</div>
+        <div class="feature-chip">📊 Farm Analysis</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getRedirectTarget() {
+      const p = new URLSearchParams(window.location.search);
+      const r = p.get('redirect');
+      if (r && r.startsWith('/') && !r.startsWith('//')) return r;
+      return '/';
+    }
+
+    function switchTab(tab) {
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+      document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+    }
+
+    function togglePwd(id, btn) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+    }
+
+    function setLoading(btn, loading) {
+      btn.querySelector('.btn-text').classList.toggle('hidden', loading);
+      btn.querySelector('.btn-loader').classList.toggle('hidden', !loading);
+      btn.disabled = loading;
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function hideError(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // Login Form Submit
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      hideError('loginError');
+      const btn = document.getElementById('loginBtn');
+      setLoading(btn, true);
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('loginEmail').value.trim(),
+            password: document.getElementById('loginPassword').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('loginError', data.error || 'Login failed.'); return; }
+        if (data.token) localStorage.setItem('ks_token', data.token);
+        if (data.user) localStorage.setItem('ks_user', JSON.stringify(data.user));
+        window.location.href = getRedirectTarget();
+      } catch (err) {
+        showError('loginError', 'Network error. Please check your connection.');
+      } finally {
+        setLoading(btn, false);
+      }
+    };
+
+    // Signup Form Submit
+    document.getElementById('signupForm').onsubmit = async (e) => {
+      e.preventDefault();
+      hideError('signupError');
+      const btn = document.getElementById('signupBtn');
+      setLoading(btn, true);
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('signupName').value.trim(),
+            email: document.getElementById('signupEmail').value.trim(),
+            phone: document.getElementById('signupPhone').value.trim(),
+            password: document.getElementById('signupPassword').value,
+            lang: document.getElementById('signupLang').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('signupError', data.error || 'Registration failed.'); return; }
+        if (data.token) localStorage.setItem('ks_token', data.token);
+        if (data.user) localStorage.setItem('ks_user', JSON.stringify(data.user));
+        window.location.href = getRedirectTarget();
+      } catch (err) {
+        showError('signupError', 'Network error. Please check your connection.');
+      } finally {
+        setLoading(btn, false);
+      }
+    };
+
+    // Boot: check params & existing session
+    (async () => {
+      const p = new URLSearchParams(window.location.search);
+      const tab = p.get('tab');
+      if (tab === 'signup') switchTab('signup');
+
+      // Check messages
+      const msg = p.get('msg');
+      const notice = document.getElementById('authNotice');
+      if (msg && notice) {
+        const messages = {
+          analysis: '📊 Please sign in or create an account to access Farm Analysis.',
+          profile: '⚙️ Please sign in to access your Farm Profile & Settings.',
+          logged_out: '✓ You have successfully logged out.',
+          session_expired: '⏰ Your session has expired. Please sign in again.',
+        };
+        notice.textContent = messages[msg] || msg;
+        notice.classList.remove('hidden');
+      }
+
+      // If already logged in, verify token and forward
+      const token = localStorage.getItem('ks_token');
+      if (token) {
+        try {
+          const r = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+          if (r.ok) {
+            window.location.href = getRedirectTarget();
+          } else {
+            localStorage.removeItem('ks_token');
+            localStorage.removeItem('ks_user');
+          }
+        } catch {}
+      }
+    })();
+  </script>
+</body>
+</html>
