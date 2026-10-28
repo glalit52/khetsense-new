@@ -57,3 +57,52 @@ export async function optionalAuth(req, res, next) {
   } catch { /* ignore */ }
   next();
 }
+
+// Middleware to protect HTML pages (mandatory login — redirects to /login)
+export function requirePageAuth(req, res, next) {
+  const token =
+    req.cookies?.ks_token ||
+    (req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7)
+      : null);
+
+  if (!token) {
+    const redirectUrl =
+      req.originalUrl && req.originalUrl !== "/" && !req.originalUrl.startsWith("/login")
+        ? `?redirect=${encodeURIComponent(req.originalUrl)}`
+        : "";
+    return res.redirect(`/login${redirectUrl}`);
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch {
+    res.clearCookie("ks_token");
+    const redirectUrl =
+      req.originalUrl && req.originalUrl !== "/" && !req.originalUrl.startsWith("/login")
+        ? `?redirect=${encodeURIComponent(req.originalUrl)}`
+        : "";
+    return res.redirect(`/login${redirectUrl}`);
+  }
+}
+
+// Middleware for /login and /signup pages: if already logged in, redirect to /
+export function redirectIfLoggedIn(req, res, next) {
+  const token =
+    req.cookies?.ks_token ||
+    (req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7)
+      : null);
+
+  if (token) {
+    try {
+      jwt.verify(token, JWT_SECRET);
+      return res.redirect("/");
+    } catch {
+      res.clearCookie("ks_token");
+    }
+  }
+  next();
+}

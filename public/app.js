@@ -480,12 +480,15 @@ $("#farmForm").onsubmit = (e) => {
   Object.assign(profile, pending, { crop: $("#cropSel").value, sowDate: $("#sowDate").value || null, area: Number($("#area").value) || null, sample: false });
   store.set("ks.profile", profile);
   conversationId = null;
-  updateFarmChip(); loadSnapshot();
+  updateFarmChip();
+  $("#setupNotice")?.classList.add("hidden");
+  loadSnapshot();
   if (profile.subId) saveSubscription(store.get("ks.channels", {}));
   if (getToken()) {
     authedApi('/api/profile/farm', {
       method: 'PUT',
       body: JSON.stringify({
+        name: profile.name || `${currentUser?.name || 'My'}'s Field`,
         place: profile.place,
         state: profile.state,
         lat: profile.lat,
@@ -493,6 +496,7 @@ $("#farmForm").onsubmit = (e) => {
         crop: profile.crop,
         sowDate: profile.sowDate,
         area: profile.area,
+        boundary: profile.boundary || [],
       }),
     }).catch(() => {});
   }
@@ -537,102 +541,145 @@ async function pollFeed() {
   }
 }
 
-// ---------------- Boot ----------------
-$("#langSel").value = profile.lang;
-$("#langSel").onchange = (e) => { profile.lang = e.target.value; store.set("ks.profile", profile); applyI18n(); conversationId = null; snapshot && render(); loadSchemes(); };
-updateSpeak();
+// ---------------- Auth & Boot Init ----------------
+let currentUser = null;
 
-// Auth nav init & session check
-(async () => {
+async function initAuthAndFarm() {
   const token = getToken();
+  const appNav = $("#appNav");
   const userNav = $("#userNav");
   const guestNav = $("#guestNav");
-  const navProfile = $("#navProfile");
 
-  const appNav = $("#appNav");
+  if (!token) {
+    // Mandatory login: redirect to /login immediately
+    localStorage.removeItem('ks_token');
+    localStorage.removeItem('ks_user');
+    window.location.replace('/login?msg=' + encodeURIComponent('Please log in to access your farm dashboard.') + '&redirect=/');
+    return null;
+  }
 
-  if (token) {
-    try {
-      const { user } = await authedApi('/api/auth/me');
-      if (appNav) appNav.style.display = 'flex';
-      if (userNav) userNav.style.display = 'flex';
-      if (guestNav) guestNav.style.display = 'none';
+  try {
+    const { user } = await authedApi('/api/auth/me');
+    if (!user) throw new Error('Not authenticated');
+    currentUser = user;
+    store.set('ks_user', user);
 
-      // Set user badge (non-clickable status indicator)
-      const userAvatar = $("#userAvatar");
-      const userName = $("#userName");
-      const profileBadge = $("#profileBadge");
-      if (userAvatar) userAvatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
-      if (userName) userName.textContent = user.name ? user.name.split(' ')[0] : 'Farmer';
-      if (profileBadge) profileBadge.title = `${user.name || 'User'} (${user.email || ''})`;
+    if (appNav) appNav.style.display = 'flex';
+    if (userNav) userNav.style.display = 'flex';
+    if (guestNav) guestNav.style.display = 'none';
 
-      // Store current user in localStorage for fast re-hydration
-      store.set('ks_user', user);
+    // Set user badge
+    const userAvatar = $("#userAvatar");
+    const userName = $("#userName");
+    const profileBadge = $("#profileBadge");
+    if (userAvatar) userAvatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
+    if (userName) userName.textContent = user.name ? user.name.split(' ')[0] : 'Farmer';
+    if (profileBadge) profileBadge.title = `${user.name || 'User'} (${user.email || ''})`;
 
-      // Sync farm profile from DB if user has set farm
-      if (user.farm?.lat && user.farm?.lon) {
-        const dbFarm = user.farm;
-        const existing = store.get('ks.profile', {});
-        const merged = {
-          ...existing,
-          lat: dbFarm.lat, lon: dbFarm.lon,
-          place: dbFarm.place || existing.place,
-          state: dbFarm.state || existing.state,
-          crop: dbFarm.crop || existing.crop,
-          sowDate: dbFarm.sowDate || existing.sowDate,
-          area: dbFarm.area || existing.area,
-          soilType: dbFarm.soilType,
-          irrigationType: dbFarm.irrigationType,
-          boundary: dbFarm.boundary || existing.boundary || [],
-          sample: false,
-        };
-        profile = { lang: user.lang || profile.lang, ...merged };
-        store.set('ks.profile', profile);
-      }
+    // Sync logged-in user's farm profile from database
+    if (user.farm && user.farm.lat && user.farm.lon) {
+      const f = user.farm;
+      profile = {
+        lang: user.lang || profile.lang || "hi",
+        lat: f.lat,
+        lon: f.lon,
+        place: f.place || f.name || "My Farm",
+        state: f.state || "",
+        crop: f.crop || "wheat",
+        sowDate: f.sowDate || null,
+        area: f.area || null,
+        soilType: f.soilType || "",
+        irrigationType: f.irrigationType || "",
+        boundary: f.boundary || [],
+        name: f.name || `${user.name}'s Field`,
+        sample: false,
+      };
+      store.set("ks.profile", profile);
+    } else {
+      // User has not set their farm location yet
+      const stored = store.get("ks.profile", {});
+      profile = {
+        ...profile,
+        ...stored,
+        lang: user.lang || profile.lang || "hi",
+        name: `${user.name}'s Field`,
+        sample: !user.farm?.lat,
+      };
+    }
 
-      // Logout handler
-      const logoutBtn = $("#mainLogoutBtn");
-      if (logoutBtn) logoutBtn.onclick = async () => {
+    // Logout handler
+    const logoutBtn = $("#mainLogoutBtn");
+    if (logoutBtn) {
+      logoutBtn.onclick = async () => {
         if (!confirm('Are you sure you want to log out?')) return;
         await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
         localStorage.removeItem('ks_token');
         localStorage.removeItem('ks_user');
-        window.location.href = '/login?msg=logged_out';
+        window.location.replace('/login?msg=logged_out');
       };
-    } catch {
-      // Token invalid or expired
-      localStorage.removeItem('ks_token');
-      localStorage.removeItem('ks_user');
-      if (appNav) appNav.style.display = 'none';
-      if (userNav) userNav.style.display = 'none';
-      if (guestNav) guestNav.style.display = 'flex';
     }
-  } else {
-    if (appNav) appNav.style.display = 'none';
-    if (userNav) userNav.style.display = 'none';
-    if (guestNav) guestNav.style.display = 'flex';
-  }
 
-  // Intercept profile nav link if guest
-  if (navProfile) {
-    navProfile.onclick = (e) => {
-      if (!getToken()) {
-        e.preventDefault();
-        window.location.href = '/login?redirect=/profile&msg=profile';
-      }
-    };
+    return user;
+  } catch (err) {
+    // Invalid or expired token: mandatory login redirect
+    localStorage.removeItem('ks_token');
+    localStorage.removeItem('ks_user');
+    window.location.replace('/login?msg=' + encodeURIComponent('Session expired. Please log in again.') + '&redirect=/');
+    return null;
   }
-})();
+}
 
+// Main Boot Execution
 (async () => {
+  // 1. Mandatory Auth check & sync first
+  const user = await initAuthAndFarm();
+  if (!user) return; // redirected to /login
+
+  // 2. Load app configuration (crops, AI, etc.)
   config = await api("/api/config").catch(() => config);
+
+  // 3. Apply i18n
+  if (user.lang) profile.lang = user.lang;
+  $("#langSel").value = profile.lang;
+  $("#langSel").onchange = (e) => {
+    profile.lang = e.target.value;
+    store.set("ks.profile", profile);
+    applyI18n();
+    conversationId = null;
+    snapshot && render();
+    loadSchemes();
+  };
+  updateSpeak();
   applyI18n();
-  const notes = [];
-  if (profile.sample) notes.push(t("sample"));
-  if (!config.ai) notes.push(t("noAI"));
-  if (notes.length) { $("#setupNotice").innerHTML = notes.map((n) => `<div>${n}</div>`).join(""); $("#setupNotice").classList.remove("hidden"); }
-  loadSnapshot();
+  updateFarmChip();
+
+  // 4. Welcome banner if user hasn't set their farm location yet
+  const setupNotice = $("#setupNotice");
+  if (!user.farm || !user.farm.lat) {
+    setupNotice.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:4px 0;">
+        <div>
+          <strong>📍 Welcome, ${esc(user.name)}!</strong> Please set your farm location and crop or draw your field boundary to get personalized AI predictions.
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn small" style="background:#16a34a;color:#fff;border:none;" onclick="openFarm()">📍 Set Location</button>
+          <a href="/analysis" class="btn small" style="background:#22c55e;color:#fff;text-decoration:none;display:inline-flex;align-items:center;padding:6px 14px;border-radius:6px;font-weight:600;">🗺️ Draw Field Polygon</a>
+        </div>
+      </div>
+    `;
+    setupNotice.classList.remove("hidden");
+  } else if (!config.ai) {
+    setupNotice.innerHTML = `<div>${t("noAI")}</div>`;
+    setupNotice.classList.remove("hidden");
+  } else {
+    setupNotice.classList.add("hidden");
+  }
+
+  // 5. Run live analysis using logged-in user's farm parameters
+  await loadSnapshot();
   loadSchemes();
-  pollFeed(); setInterval(pollFeed, 5 * 60_000);
+  pollFeed();
+  setInterval(pollFeed, 5 * 60_000);
   setInterval(loadSnapshot, 30 * 60_000);
 })();
+

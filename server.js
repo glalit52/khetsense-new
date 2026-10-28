@@ -30,7 +30,12 @@ import {
 import { parseLatLon } from "./src/util.js";
 import authRouter from "./src/routes/auth.js";
 import profileRouter from "./src/routes/profile.js";
-import { authenticate, optionalAuth } from "./src/middleware/auth.js";
+import {
+  authenticate,
+  optionalAuth,
+  requirePageAuth,
+  redirectIfLoggedIn,
+} from "./src/middleware/auth.js";
 
 // Minimal .env loader (no dependency).
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -83,7 +88,7 @@ app.use((_req, res, next) => {
 
 app.use(express.json({ limit: "12mb" }));
 app.use(cookieParser());
-app.use(express.static(path.join(here, "public")));
+app.use(express.static(path.join(here, "public"), { index: false }));
 
 const wrap = (fn) => async (req, res) => {
   try {
@@ -265,22 +270,36 @@ app.get(
   wrap((req) => feed(req.params.id, req.query.since) ?? []),
 );
 
-// --- Web Page Routes ---
-app.get("/login", (_req, res) =>
+// --- Public Auth Web Pages ---
+app.get("/login", redirectIfLoggedIn, (_req, res) =>
   res.sendFile(path.join(here, "public", "login.html")),
 );
-app.get("/signup", (_req, res) =>
+app.get("/signup", redirectIfLoggedIn, (_req, res) =>
   res.sendFile(path.join(here, "public", "login.html")),
 );
-app.get("/profile", (_req, res) =>
+
+// --- Protected App Pages (Mandatory Login) ---
+app.get("/", requirePageAuth, (_req, res) =>
+  res.sendFile(path.join(here, "public", "index.html")),
+);
+app.get("/index.html", requirePageAuth, (_req, res) =>
+  res.sendFile(path.join(here, "public", "index.html")),
+);
+app.get("/profile", requirePageAuth, (_req, res) =>
   res.sendFile(path.join(here, "public", "profile.html")),
 );
-app.get("/analysis", (_req, res) =>
+app.get("/profile.html", requirePageAuth, (_req, res) =>
+  res.sendFile(path.join(here, "public", "profile.html")),
+);
+app.get("/analysis", requirePageAuth, (_req, res) =>
+  res.sendFile(path.join(here, "public", "analysis.html")),
+);
+app.get("/analysis.html", requirePageAuth, (_req, res) =>
   res.sendFile(path.join(here, "public", "analysis.html")),
 );
 
-// --- SPA fallback — serve index.html for unknown routes ---
-app.get(/^\/(?!api|health).*/, (req, res) => {
+// --- SPA fallback — serve index.html for unknown routes if authenticated ---
+app.get(/^\/(?!api|health).*/, requirePageAuth, (_req, res) => {
   res.sendFile(path.join(here, "public", "index.html"));
 });
 
